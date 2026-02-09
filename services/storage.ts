@@ -1,7 +1,7 @@
 import { Book, Note } from '../types';
 
-const BOOKS_KEY = 'notescribe_books';
-const NOTES_KEY = 'notescribe_notes';
+const BOOKS_KEY = 'niber_books';
+const NOTES_KEY = 'niber_notes';
 
 export const storage = {
   getBooks: (): Book[] => {

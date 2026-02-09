@@ -12,7 +12,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
         <div className="bg-indigo-600 p-2 rounded-lg text-white shadow-md shadow-indigo-200 dark:shadow-none">
           <PenTool size={20} />
         </div>
-        <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">NoteScribe</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Niber</h1>
       </div>
       <div className="flex items-center gap-4">
         <div className="text-sm text-slate-500 dark:text-slate-400 font-medium hidden sm:block">

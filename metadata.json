@@ -1,5 +1,5 @@
 {
-  "name": "NoteScribe",
+  "name": "Niber",
   "description": "Instantly transcribe photos of handwritten notes into formatted Markdown text.",
   "requestFramePermissions": [
     "camera"

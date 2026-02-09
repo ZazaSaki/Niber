@@ -17,34 +17,34 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('notescribe_theme');
+      const saved = localStorage.getItem('niber_theme');
       return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
     return false;
   });
 
   // AI Settings
-  const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem('notescribe_api_key') || '');
-  const [model, setModel] = useState(() => localStorage.getItem('notescribe_model') || 'gemini-3-flash-preview');
+  const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem('niber_api_key') || '');
+  const [model, setModel] = useState(() => localStorage.getItem('niber_model') || 'gemini-3-flash-preview');
 
   // Apply theme to document
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('notescribe_theme', 'dark');
+      localStorage.setItem('niber_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('notescribe_theme', 'light');
+      localStorage.setItem('niber_theme', 'light');
     }
   }, [isDarkMode]);
 
   // Persist AI Settings
   useEffect(() => {
-    localStorage.setItem('notescribe_api_key', customApiKey);
+    localStorage.setItem('niber_api_key', customApiKey);
   }, [customApiKey]);
 
   useEffect(() => {
-    localStorage.setItem('notescribe_model', model);
+    localStorage.setItem('niber_model', model);
   }, [model]);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);

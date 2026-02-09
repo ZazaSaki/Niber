@@ -58,7 +58,7 @@ export const BookList: React.FC<BookListProps> = ({ onSelectBook }) => {
 
   const handleExportAll = () => {
     const data = storage.getAllData();
-    const filename = `notescribe_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    const filename = `niber_backup_${new Date().toISOString().slice(0, 10)}.json`;
     downloadJson(data, filename);
   };
 
@@ -88,7 +88,7 @@ export const BookList: React.FC<BookListProps> = ({ onSelectBook }) => {
         alert(`Import successful! Added/Updated ${result.bookCount} books and ${result.noteCount} notes.`);
       } catch (err) {
         console.error(err);
-        alert('Failed to import file. Please ensure it is a valid NoteScribe JSON export.');
+        alert('Failed to import file. Please ensure it is a valid Niber JSON export.');
       }
       // Reset input
       if (fileInputRef.current) fileInputRef.current.value = '';

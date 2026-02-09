@@ -120,7 +120,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div className="p-4 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-200 dark:border-slate-800 text-center shrink-0">
-          <p className="text-xs text-slate-400">NoteScribe v1.1.0</p>
+          <p className="text-xs text-slate-400">Niber v1.1.0</p>
         </div>
       </div>
     </div>
