@@ -1,13 +1,19 @@
 import React from 'react';
-import { X, Moon, Sun, Key, Cpu } from 'lucide-react';
+import { X, Moon, Sun, Key, Cpu, Zap, Box } from 'lucide-react';
+import { AIProvider } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   isDarkMode: boolean;
   toggleTheme: () => void;
-  apiKey: string;
-  setApiKey: (key: string) => void;
+  
+  provider: AIProvider;
+  setProvider: (provider: AIProvider) => void;
+  
+  apiKeys: Record<AIProvider, string>;
+  setApiKey: (provider: AIProvider, key: string) => void;
+  
   model: string;
   setModel: (model: string) => void;
 }
@@ -17,12 +23,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose, 
   isDarkMode, 
   toggleTheme,
-  apiKey,
+  provider,
+  setProvider,
+  apiKeys,
   setApiKey,
   model,
   setModel
 }) => {
   if (!isOpen) return null;
+
+  const handleProviderChange = (newProvider: AIProvider) => {
+    setProvider(newProvider);
+    // Set default model for the new provider
+    switch (newProvider) {
+      case 'google': setModel('gemini-3-flash-preview'); break;
+      case 'openai': setModel('gpt-4o'); break;
+      case 'anthropic': setModel('claude-3-5-sonnet-20241022'); break;
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
@@ -71,6 +89,48 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">AI Configuration</h3>
              
+             {/* Provider Selection */}
+             <div className="mb-5">
+               <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">AI Provider</label>
+               <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => handleProviderChange('google')}
+                    className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${
+                      provider === 'google' 
+                        ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' 
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    <Zap size={20} />
+                    <span className="text-xs font-semibold">Google</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => handleProviderChange('openai')}
+                    className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${
+                      provider === 'openai' 
+                        ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' 
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    <Cpu size={20} />
+                    <span className="text-xs font-semibold">OpenAI</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleProviderChange('anthropic')}
+                    className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${
+                      provider === 'anthropic' 
+                        ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' 
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    <Box size={20} />
+                    <span className="text-xs font-semibold">Anthropic</span>
+                  </button>
+               </div>
+             </div>
+
              {/* Model Selection */}
              <div className="mb-5">
                <div className="flex items-center gap-2 mb-2">
@@ -82,37 +142,52 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                  onChange={(e) => setModel(e.target.value)}
                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                >
-                 <optgroup label="Gemini 3.0 (Preview)">
-                   <option value="gemini-3-flash-preview">Gemini 3.0 Flash (Fastest)</option>
-                   <option value="gemini-3-pro-preview">Gemini 3.0 Pro (High Intelligence)</option>
-                 </optgroup>
-                 <optgroup label="Gemini 2.0">
-                   <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                   <option value="gemini-2.0-flash-lite-preview-02-05">Gemini 2.0 Flash Lite</option>
-                   <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro Experimental</option>
-                   <option value="gemini-2.0-flash-thinking-exp-01-21">Gemini 2.0 Flash Thinking</option>
-                 </optgroup>
+                 {provider === 'google' && (
+                   <>
+                    <optgroup label="Gemini 3.0 (Preview)">
+                      <option value="gemini-3-flash-preview">Gemini 3.0 Flash</option>
+                      <option value="gemini-3-pro-preview">Gemini 3.0 Pro</option>
+                    </optgroup>
+                    <optgroup label="Gemini 2.0">
+                      <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                      <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro Exp</option>
+                    </optgroup>
+                   </>
+                 )}
+                 {provider === 'openai' && (
+                   <>
+                     <option value="gpt-4o">GPT-4o</option>
+                     <option value="gpt-4o-mini">GPT-4o Mini</option>
+                     <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                     <option value="chatgpt-4o-latest">ChatGPT-4o Latest</option>
+                   </>
+                 )}
+                 {provider === 'anthropic' && (
+                   <>
+                     <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                     <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                   </>
+                 )}
                </select>
-               <p className="text-[10px] text-slate-500 mt-1.5 ml-1">
-                 "Flash" models are faster. "Pro" and "Thinking" models handle complex diagrams better but may be slower.
-               </p>
              </div>
 
              {/* API Key Input */}
              <div>
                <div className="flex items-center gap-2 mb-2">
                  <Key size={16} className="text-slate-500" />
-                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Custom API Key <span className="text-slate-400 font-normal">(Optional)</span></label>
+                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                   {provider.charAt(0).toUpperCase() + provider.slice(1)} API Key
+                 </label>
                </div>
                <input 
                  type="password"
-                 value={apiKey}
-                 onChange={(e) => setApiKey(e.target.value)}
-                 placeholder="Enter your Gemini API Key"
+                 value={apiKeys[provider] || ''}
+                 onChange={(e) => setApiKey(provider, e.target.value)}
+                 placeholder={`Enter your ${provider} API Key`}
                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
                />
                <p className="text-[10px] text-slate-500 mt-1.5 ml-1">
-                 If left empty, the application's default API key will be used. Your key is stored locally in your browser.
+                 Your key is stored locally in your browser and used only for requests to {provider}.
                </p>
              </div>
           </div>
@@ -120,7 +195,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div className="p-4 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-200 dark:border-slate-800 text-center shrink-0">
-          <p className="text-xs text-slate-400">Niber v1.1.0</p>
+          <p className="text-xs text-slate-400">Niber v1.2.2</p>
         </div>
       </div>
     </div>

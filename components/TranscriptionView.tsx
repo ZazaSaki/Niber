@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { ArrowLeft, Loader2, ArrowRight } from 'lucide-react';
 import { ImageUploader } from './ImageUploader';
 import { TranscriptionEditor } from './TranscriptionEditor';
-import { transcribeImage } from '../services/geminiService';
-import { TranscriptionState, UploadedImage } from '../types';
+import { transcribeImage } from '../services/transcriptionService';
+import { TranscriptionState, UploadedImage, AIProvider } from '../types';
 
 interface TranscriptionViewProps {
   onCancel: () => void;
   onSave: (content: string, image?: string) => void;
-  apiKey?: string;
-  model?: string;
+  apiKey: string;
+  model: string;
+  provider: AIProvider;
 }
 
-export const TranscriptionView: React.FC<TranscriptionViewProps> = ({ onCancel, onSave, apiKey, model }) => {
+export const TranscriptionView: React.FC<TranscriptionViewProps> = ({ onCancel, onSave, apiKey, model, provider }) => {
   const [image, setImage] = useState<UploadedImage | null>(null);
   const [transcription, setTranscription] = useState<TranscriptionState>({
     status: 'idle',
@@ -25,7 +26,11 @@ export const TranscriptionView: React.FC<TranscriptionViewProps> = ({ onCancel, 
     setTranscription({ status: 'loading', markdown: '' });
 
     try {
-      const markdown = await transcribeImage(image.base64, image.mimeType, { apiKey, model });
+      const markdown = await transcribeImage(image.base64, image.mimeType, { 
+        apiKey, 
+        model, 
+        provider 
+      });
       setTranscription({ status: 'success', markdown });
     } catch (error: any) {
       setTranscription({ 
@@ -53,7 +58,7 @@ export const TranscriptionView: React.FC<TranscriptionViewProps> = ({ onCancel, 
           <button onClick={onCancel} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-2 font-medium">
             <ArrowLeft size={18} /> Cancel
           </button>
-          <span className="font-semibold text-slate-700 dark:text-slate-200">New Transcription</span>
+          <span className="font-semibold text-slate-700 dark:text-slate-200">New Transcription ({provider})</span>
           <div className="w-[70px]"></div> {/* Spacer */}
        </div>
 

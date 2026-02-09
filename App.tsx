@@ -4,7 +4,7 @@ import { BookList } from './components/BookList';
 import { NoteList } from './components/NoteList';
 import { TranscriptionView } from './components/TranscriptionView';
 import { SettingsModal } from './components/SettingsModal';
-import { Book, Note } from './types';
+import { Book, Note, AIProvider } from './types';
 import { storage } from './services/storage';
 
 type ViewState = 'books' | 'notes' | 'transcribe';
@@ -24,8 +24,31 @@ const App: React.FC = () => {
   });
 
   // AI Settings
-  const [customApiKey, setCustomApiKey] = useState(() => localStorage.getItem('niber_api_key') || '');
+  const [provider, setProvider] = useState<AIProvider>(() => {
+    const saved = localStorage.getItem('niber_provider');
+    // Fallback if the saved provider is no longer supported (e.g. deepseek)
+    if (saved === 'deepseek') return 'google';
+    return (saved as AIProvider) || 'google';
+  });
+  
   const [model, setModel] = useState(() => localStorage.getItem('niber_model') || 'gemini-3-flash-preview');
+  
+  // Initialize keys from local storage
+  const [apiKeys, setApiKeys] = useState<Record<AIProvider, string>>(() => {
+    const saved = localStorage.getItem('niber_api_keys');
+    const defaults = { google: '', openai: '', anthropic: '' };
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+           google: parsed.google || '',
+           openai: parsed.openai || '',
+           anthropic: parsed.anthropic || ''
+        };
+      } catch { return defaults; }
+    }
+    return defaults;
+  });
 
   // Apply theme to document
   useEffect(() => {
@@ -40,14 +63,22 @@ const App: React.FC = () => {
 
   // Persist AI Settings
   useEffect(() => {
-    localStorage.setItem('niber_api_key', customApiKey);
-  }, [customApiKey]);
+    localStorage.setItem('niber_provider', provider);
+  }, [provider]);
 
   useEffect(() => {
     localStorage.setItem('niber_model', model);
   }, [model]);
 
+  useEffect(() => {
+    localStorage.setItem('niber_api_keys', JSON.stringify(apiKeys));
+  }, [apiKeys]);
+
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
+  const handleSetApiKey = (p: AIProvider, key: string) => {
+    setApiKeys(prev => ({ ...prev, [p]: key }));
+  };
 
   const navigateToBook = (book: Book) => {
     setActiveBook(book);
@@ -102,7 +133,8 @@ const App: React.FC = () => {
            <TranscriptionView 
              onCancel={() => setView('notes')}
              onSave={handleSaveTranscription}
-             apiKey={customApiKey}
+             provider={provider}
+             apiKey={apiKeys[provider]}
              model={model}
            />
         )}
@@ -113,8 +145,10 @@ const App: React.FC = () => {
         onClose={() => setIsSettingsOpen(false)}
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
-        apiKey={customApiKey}
-        setApiKey={setCustomApiKey}
+        provider={provider}
+        setProvider={setProvider}
+        apiKeys={apiKeys}
+        setApiKey={handleSetApiKey}
         model={model}
         setModel={setModel}
       />

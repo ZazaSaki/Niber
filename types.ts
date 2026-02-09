@@ -1,3 +1,5 @@
+export type AIProvider = 'google' | 'openai' | 'anthropic';
+
 export interface TranscriptionState {
   status: 'idle' | 'loading' | 'success' | 'error';
   markdown: string;
