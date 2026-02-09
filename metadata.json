@@ -1,0 +1,7 @@
+{
+  "name": "NoteScribe",
+  "description": "Instantly transcribe photos of handwritten notes into formatted Markdown text.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
