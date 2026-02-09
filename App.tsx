@@ -33,17 +33,21 @@ const App: React.FC = () => {
   
   const [model, setModel] = useState(() => localStorage.getItem('niber_model') || 'gemini-3-flash-preview');
   
+  // Custom Provider Settings
+  const [customBaseUrl, setCustomBaseUrl] = useState(() => localStorage.getItem('niber_custom_base_url') || 'http://localhost:11434/v1');
+
   // Initialize keys from local storage
   const [apiKeys, setApiKeys] = useState<Record<AIProvider, string>>(() => {
     const saved = localStorage.getItem('niber_api_keys');
-    const defaults = { google: '', openai: '', anthropic: '' };
+    const defaults = { google: '', openai: '', anthropic: '', custom: '' };
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         return {
            google: parsed.google || '',
            openai: parsed.openai || '',
-           anthropic: parsed.anthropic || ''
+           anthropic: parsed.anthropic || '',
+           custom: parsed.custom || ''
         };
       } catch { return defaults; }
     }
@@ -69,6 +73,10 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('niber_model', model);
   }, [model]);
+  
+  useEffect(() => {
+    localStorage.setItem('niber_custom_base_url', customBaseUrl);
+  }, [customBaseUrl]);
 
   useEffect(() => {
     localStorage.setItem('niber_api_keys', JSON.stringify(apiKeys));
@@ -136,6 +144,7 @@ const App: React.FC = () => {
              provider={provider}
              apiKey={apiKeys[provider]}
              model={model}
+             customBaseUrl={customBaseUrl}
            />
         )}
       </main>
@@ -151,6 +160,8 @@ const App: React.FC = () => {
         setApiKey={handleSetApiKey}
         model={model}
         setModel={setModel}
+        customBaseUrl={customBaseUrl}
+        setCustomBaseUrl={setCustomBaseUrl}
       />
     </div>
   );

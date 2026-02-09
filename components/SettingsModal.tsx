@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Moon, Sun, Key, Cpu, Zap, Box } from 'lucide-react';
+import { X, Moon, Sun, Key, Cpu, Zap, Box, Server, Globe } from 'lucide-react';
 import { AIProvider } from '../types';
 
 interface SettingsModalProps {
@@ -16,6 +16,9 @@ interface SettingsModalProps {
   
   model: string;
   setModel: (model: string) => void;
+
+  customBaseUrl: string;
+  setCustomBaseUrl: (url: string) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ 
@@ -28,7 +31,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   apiKeys,
   setApiKey,
   model,
-  setModel
+  setModel,
+  customBaseUrl,
+  setCustomBaseUrl
 }) => {
   if (!isOpen) return null;
 
@@ -39,6 +44,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       case 'google': setModel('gemini-3-flash-preview'); break;
       case 'openai': setModel('gpt-4o'); break;
       case 'anthropic': setModel('claude-3-5-sonnet-20241022'); break;
+      case 'custom': setModel('llama3.2-vision'); break; // Common default for Ollama
     }
   };
 
@@ -92,44 +98,76 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
              {/* Provider Selection */}
              <div className="mb-5">
                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">AI Provider</label>
-               <div className="grid grid-cols-3 gap-2">
+               <div className="grid grid-cols-4 gap-2">
                   <button
                     onClick={() => handleProviderChange('google')}
-                    className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${
+                    className={`p-2 rounded-lg border flex flex-col items-center gap-2 transition-all ${
                       provider === 'google' 
                         ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' 
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
-                    <Zap size={20} />
-                    <span className="text-xs font-semibold">Google</span>
+                    <Zap size={18} />
+                    <span className="text-[10px] font-semibold">Google</span>
                   </button>
                   
                   <button
                     onClick={() => handleProviderChange('openai')}
-                    className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${
+                    className={`p-2 rounded-lg border flex flex-col items-center gap-2 transition-all ${
                       provider === 'openai' 
                         ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' 
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
-                    <Cpu size={20} />
-                    <span className="text-xs font-semibold">OpenAI</span>
+                    <Cpu size={18} />
+                    <span className="text-[10px] font-semibold">OpenAI</span>
                   </button>
 
                   <button
                     onClick={() => handleProviderChange('anthropic')}
-                    className={`p-3 rounded-lg border flex flex-col items-center gap-2 transition-all ${
+                    className={`p-2 rounded-lg border flex flex-col items-center gap-2 transition-all ${
                       provider === 'anthropic' 
                         ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' 
                         : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
                     }`}
                   >
-                    <Box size={20} />
-                    <span className="text-xs font-semibold">Anthropic</span>
+                    <Box size={18} />
+                    <span className="text-[10px] font-semibold">Anthropic</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleProviderChange('custom')}
+                    className={`p-2 rounded-lg border flex flex-col items-center gap-2 transition-all ${
+                      provider === 'custom' 
+                        ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300' 
+                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    <Server size={18} />
+                    <span className="text-[10px] font-semibold">Custom</span>
                   </button>
                </div>
              </div>
+
+             {/* Custom Base URL (Only for Custom Provider) */}
+             {provider === 'custom' && (
+               <div className="mb-5">
+                 <div className="flex items-center gap-2 mb-2">
+                   <Globe size={16} className="text-slate-500" />
+                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Base URL</label>
+                 </div>
+                 <input 
+                   type="text"
+                   value={customBaseUrl}
+                   onChange={(e) => setCustomBaseUrl(e.target.value)}
+                   placeholder="http://localhost:11434/v1"
+                   className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
+                 />
+                 <p className="text-[10px] text-slate-500 mt-1.5 ml-1">
+                   Endpoint compatible with OpenAI Chat Completions (e.g., Ollama, LocalAI).
+                 </p>
+               </div>
+             )}
 
              {/* Model Selection */}
              <div className="mb-5">
@@ -137,38 +175,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                  <Cpu size={16} className="text-slate-500" />
                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Model</label>
                </div>
-               <select
-                 value={model}
-                 onChange={(e) => setModel(e.target.value)}
-                 className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-               >
-                 {provider === 'google' && (
-                   <>
-                    <optgroup label="Gemini 3.0 (Preview)">
-                      <option value="gemini-3-flash-preview">Gemini 3.0 Flash</option>
-                      <option value="gemini-3-pro-preview">Gemini 3.0 Pro</option>
-                    </optgroup>
-                    <optgroup label="Gemini 2.0">
-                      <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                      <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro Exp</option>
-                    </optgroup>
-                   </>
-                 )}
-                 {provider === 'openai' && (
-                   <>
-                     <option value="gpt-4o">GPT-4o</option>
-                     <option value="gpt-4o-mini">GPT-4o Mini</option>
-                     <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                     <option value="chatgpt-4o-latest">ChatGPT-4o Latest</option>
-                   </>
-                 )}
-                 {provider === 'anthropic' && (
-                   <>
-                     <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
-                     <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
-                   </>
-                 )}
-               </select>
+               
+               {provider === 'custom' ? (
+                 <input 
+                   type="text"
+                   value={model}
+                   onChange={(e) => setModel(e.target.value)}
+                   placeholder="e.g., llama3.2-vision, mistral, etc."
+                   className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400"
+                 />
+               ) : (
+                 <select
+                   value={model}
+                   onChange={(e) => setModel(e.target.value)}
+                   className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                 >
+                   {provider === 'google' && (
+                     <>
+                      <optgroup label="Gemini 3.0 (Preview)">
+                        <option value="gemini-3-flash-preview">Gemini 3.0 Flash</option>
+                        <option value="gemini-3-pro-preview">Gemini 3.0 Pro</option>
+                      </optgroup>
+                      <optgroup label="Gemini 2.0">
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                        <option value="gemini-2.0-pro-exp-02-05">Gemini 2.0 Pro Exp</option>
+                      </optgroup>
+                     </>
+                   )}
+                   {provider === 'openai' && (
+                     <>
+                       <option value="gpt-4o">GPT-4o</option>
+                       <option value="gpt-4o-mini">GPT-4o Mini</option>
+                       <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                       <option value="chatgpt-4o-latest">ChatGPT-4o Latest</option>
+                     </>
+                   )}
+                   {provider === 'anthropic' && (
+                     <>
+                       <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                       <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                     </>
+                   )}
+                 </select>
+               )}
              </div>
 
              {/* API Key Input */}
@@ -176,7 +225,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                <div className="flex items-center gap-2 mb-2">
                  <Key size={16} className="text-slate-500" />
                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                   {provider.charAt(0).toUpperCase() + provider.slice(1)} API Key
+                   {provider === 'custom' ? 'API Key (Optional)' : `${provider.charAt(0).toUpperCase() + provider.slice(1)} API Key`}
                  </label>
                </div>
                <input 
@@ -195,7 +244,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div className="p-4 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-200 dark:border-slate-800 text-center shrink-0">
-          <p className="text-xs text-slate-400">Niber v1.2.2</p>
+          <p className="text-xs text-slate-400">Niber v1.3.0</p>
         </div>
       </div>
     </div>

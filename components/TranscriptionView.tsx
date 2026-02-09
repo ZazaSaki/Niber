@@ -11,9 +11,17 @@ interface TranscriptionViewProps {
   apiKey: string;
   model: string;
   provider: AIProvider;
+  customBaseUrl?: string;
 }
 
-export const TranscriptionView: React.FC<TranscriptionViewProps> = ({ onCancel, onSave, apiKey, model, provider }) => {
+export const TranscriptionView: React.FC<TranscriptionViewProps> = ({ 
+  onCancel, 
+  onSave, 
+  apiKey, 
+  model, 
+  provider,
+  customBaseUrl
+}) => {
   const [image, setImage] = useState<UploadedImage | null>(null);
   const [transcription, setTranscription] = useState<TranscriptionState>({
     status: 'idle',
@@ -29,7 +37,8 @@ export const TranscriptionView: React.FC<TranscriptionViewProps> = ({ onCancel, 
       const markdown = await transcribeImage(image.base64, image.mimeType, { 
         apiKey, 
         model, 
-        provider 
+        provider,
+        baseUrl: customBaseUrl
       });
       setTranscription({ status: 'success', markdown });
     } catch (error: any) {
